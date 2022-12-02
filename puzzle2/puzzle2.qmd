@@ -1,0 +1,79 @@
+---
+title: "Advent of Code"
+subtitle: "Day 2"
+format: html
+execute:
+  keep-md: true
+  message: false
+  warning: false
+---
+
+# Solution in R
+
+## Part 1
+
+```{r}
+library(tidyverse)
+d <- read_delim(
+  here::here("puzzle2", "data.txt"),
+  delim = " ",
+  col_names = c("opponent", "you")
+)
+```
+
+```{r}
+shape_score <- tibble(
+  you = c("X", "Y", "Z"),
+  shape_score = 1:3
+)
+```
+
+```{r}
+key <- expand.grid(
+    you = LETTERS[24:26], 
+    opponent = LETTERS[1:3]
+  ) |>
+  mutate(result_score = c(3, 6, 0, 0, 3, 6, 6, 0, 3))
+```
+
+
+```{r}
+d |>
+  left_join(shape_score) |>
+  left_join(key) |>
+  mutate(score = shape_score + result_score) |>
+  summarize(total = sum(score))
+```
+
+## Part 2
+
+```{r}
+needed_outcome <- tibble(
+  you = LETTERS[24:26],
+  result = c("lose", "draw", "win")
+)
+```
+
+
+```{r}
+key <- key |>
+  mutate(
+    result = case_when(
+      result_score == 0 ~ "lose",
+      result_score == 3 ~ "draw",
+      TRUE ~ "win"
+    )
+  ) 
+```
+
+
+```{r}
+d |>
+  left_join(needed_outcome) |>
+  select(-you) |>
+  left_join(key, join_by(opponent, result)) |>
+  left_join(shape_score) |>
+  mutate(score = shape_score + result_score) |>
+  summarize(total = sum(score))
+```
+
