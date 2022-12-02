@@ -13,8 +13,6 @@ execute:
 # Solution in R
 
 
-::: {.cell}
-
 ```{.r .cell-code}
 library(tidyverse)
 
@@ -22,12 +20,9 @@ d <- tibble(
   calories = parse_number(readLines(here::here("puzzle1", "data.txt")))
 )
 ```
-:::
 
 ## Part 1
 
-
-::: {.cell}
 
 ```{.r .cell-code}
 total_calories_by_elf <- d |>
@@ -39,20 +34,15 @@ total_calories_by_elf |>
   filter(total_calories == max(total_calories))
 ```
 
-::: {.cell-output .cell-output-stdout}
+
 ```
 # A tibble: 1 × 2
     elf total_calories
   <int>          <dbl>
 1   196          69501
 ```
-:::
-:::
 
 ## Part 2
-
-
-::: {.cell}
 
 ```{.r .cell-code}
 total_calories_by_elf |>
@@ -61,29 +51,22 @@ total_calories_by_elf |>
   summarize(top_three_total = sum(total_calories))
 ```
 
-::: {.cell-output .cell-output-stdout}
+
 ```
 # A tibble: 1 × 1
   top_three_total
             <dbl>
 1          202346
 ```
-:::
-:::
 
 
 
 # Solution in python
 
-::: {.cell}
-
 ```{.python .cell-code}
 import pandas as pd
 import re
 ```
-:::
-
-::: {.cell}
 
 ```{.python .cell-code}
 with open("data.txt") as f:
@@ -107,12 +90,9 @@ total_calories_by_elf = (
   .sum()
 )
 ```
-:::
 
 
 ## Part 1
-
-::: {.cell}
 
 ```{.python .cell-code}
 total_calories_by_elf.loc[
@@ -122,19 +102,14 @@ total_calories_by_elf.loc[
 ]
 ```
 
-::: {.cell-output .cell-output-stdout}
 ```
      calories
 elf          
 196   69501.0
 ```
-:::
-:::
 
 
 ## Part 2
-
-::: {.cell}
 
 ```{.python .cell-code}
 (
@@ -148,10 +123,7 @@ elf
 )
 ```
 
-::: {.cell-output .cell-output-stdout}
 ```
 calories    202346.0
 dtype: float64
 ```
-:::
-:::
