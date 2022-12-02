@@ -29,6 +29,11 @@ shape_score <- tibble(
 ```
 
 ```{r}
+d
+```
+
+
+```{r}
 key <- expand.grid(
     you = LETTERS[24:26], 
     opponent = LETTERS[1:3]
@@ -76,4 +81,97 @@ d |>
   mutate(score = shape_score + result_score) |>
   summarize(total = sum(score))
 ```
+
+# Solution in python
+
+```{python}
+import pandas as pd
+import numpy as np
+```
+
+```{python}
+d = pd.read_csv(
+  "data.txt",
+  delim_whitespace = True,
+  names = ['opponent', 'you']
+)
+```
+
+## Part 1
+
+```{python}
+shape_score_data = {
+  "you" : ["X", "Y", "Z"],
+  "shape_score" : [1, 2, 3]
+}
+shape_score = pd.DataFrame(data = shape_score_data)
+```
+
+```{python}
+comparisons = [(o, y) for o in ["A", "B", "C"] for y in ["X", "Y", "Z"]]
+key = pd.DataFrame(data = comparisons, columns = ['opponent', 'you'])
+key['result_score'] = [3, 6, 0, 0, 3, 6, 6, 0, 3]
+```
+
+```{python}
+scored = d.merge(
+  shape_score,
+  on = 'you',
+  how = 'left'
+).merge(
+  key,
+  on = ['opponent', 'you'],
+  how = 'left'
+)
+```
+
+```{python}
+total = scored['shape_score'] + scored['result_score']
+sum(total)
+```
+
+## Part 2
+
+```{python}
+needed_outcome_data = {
+  "you" : ["X", "Y", "Z"],
+  "result" : ["lose", "draw", "win"]
+}
+needed_outcome = pd.DataFrame(data = needed_outcome_data)
+```
+
+```{python}
+conditions = [(key['result_score'] == 0), (key['result_score'] == 3)]
+output = ['lose', 'draw']
+
+key['result'] = np.select(conditions, output, default = 'win')
+```
+
+```{python}
+scored_new = (
+  d
+  .merge(
+    needed_outcome,
+    on = 'you',
+    how = 'left'
+  )
+  .drop('you', axis = 1)
+  .merge(
+    key,
+    on = ['opponent', 'result'],
+    how = 'left'
+  )
+  .merge(
+    shape_score,
+    on = 'you',
+    how = 'left'
+  )
+)
+```
+
+```{python}
+total_new = scored_new['shape_score'] + scored_new['result_score']
+sum(total_new)
+```
+
 
