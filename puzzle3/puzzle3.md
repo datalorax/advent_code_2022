@@ -15,7 +15,7 @@ execute:
 ## Part 1
 
 
-::: {.cell}
+
 
 ```{.r .cell-code}
 library(tidyverse)
@@ -24,9 +24,9 @@ d <- read_csv(
   col_names = "rucksack"
 )
 ```
-:::
 
-::: {.cell}
+
+
 
 ```{.r .cell-code}
 compartment_separate <- function(str) {
@@ -53,9 +53,9 @@ compartments <- tibble(
   )
 )
 ```
-:::
 
-::: {.cell}
+
+
 
 ```{.r .cell-code}
 str_to_vec <- function(str) {
@@ -70,9 +70,9 @@ str_intersect <- function(...) {
 common <- compartments |>
   mutate(common = map2_chr(compartment1, compartment2, str_intersect))
 ```
-:::
 
-::: {.cell}
+
+
 
 ```{.r .cell-code}
 score_table <- tibble(
@@ -85,21 +85,21 @@ common |>
   summarize(total = sum(score))
 ```
 
-::: {.cell-output .cell-output-stdout}
+ 
 ```
 # A tibble: 1 × 1
   total
   <int>
 1  7889
 ```
-:::
-:::
+
+
 
 
 ## Part 2
 
 
-::: {.cell}
+
 
 ```{.r .cell-code}
 by_group <- d |>
@@ -113,12 +113,163 @@ by_group |>
   summarize(total = sum(score))
 ```
 
-::: {.cell-output .cell-output-stdout}
+ 
 ```
 # A tibble: 1 × 1
   total
   <int>
 1  2825
 ```
-:::
-:::
+
+
+
+
+# Solution in python
+## Part 1
+
+
+
+
+```{.python .cell-code}
+import pandas as pd
+from functools import reduce
+from string import ascii_letters
+```
+
+
+
+
+```{.python .cell-code}
+d = pd.read_csv("data.txt", names = ['rucksack'])
+```
+
+
+
+
+```{.python .cell-code}
+def compartment_separate(str):
+  lngth = len(str)
+  lngth_half = int(lngth / 2)
+  return [str[0:lngth_half], str[lngth_half:lngth]]
+  
+compartments_data = [compartment_separate(rucksack) for rucksack in d['rucksack']]
+```
+
+
+
+
+```{.python .cell-code}
+def intersect(a, b):
+  return a.intersection(b)
+
+def str_intersect(str_vec):
+  sets = [set(list(x)) for x in str_vec]
+  return list(reduce(intersect, sets))
+
+common = [str_intersect(compartments) for compartments in compartments_data]
+```
+
+
+
+
+```{.python .cell-code}
+for i in range(0, len(compartments_data)):
+  compartments_data[i].extend(common[i])
+
+compartments = pd.DataFrame(
+  data = compartments_data,
+  columns = ['compartment1', 'compartment2', 'common']
+)
+```
+
+
+
+
+```{.python .cell-code}
+letters = ascii_letters
+
+score_table = pd.DataFrame(
+  data = {
+    'key': list(letters),
+    'score': list(range(1, 53))
+  }
+)
+```
+
+
+
+
+```{.python .cell-code}
+compartments = compartments.merge(
+  score_table,
+  left_on = "common",
+  right_on = "key",
+  how = "left"
+)
+```
+
+
+
+
+```{.python .cell-code}
+sum(compartments['score'])
+```
+
+ 
+```
+7889
+```
+
+
+
+
+## Part 2
+
+
+
+
+```{.python .cell-code}
+id_list = [[i, i, i] for i in range(1, 101)]
+
+# move the list of lists into a single list
+ids = [item for sublist in id_list for item in sublist]
+
+d['group'] = ids
+```
+
+
+
+
+```{.python .cell-code}
+by_group = dict(list(d.groupby('group')))
+badge_data = {key: str_intersect(value['rucksack']) for key, value in by_group.items()}
+badge_data_values = badge_data.values()
+badge_data_values_list = [item for sublist in badge_data_values for item in sublist]
+
+badge = pd.DataFrame(
+  data = {
+    "group": badge_data.keys(), 
+    "badge": badge_data_values_list
+  }
+)
+```
+
+
+
+
+```{.python .cell-code}
+scored = badge.merge(
+  score_table,
+  left_on = "badge",
+  right_on = "key",
+  how = "left"
+)
+sum(scored['score'])
+```
+
+ 
+```
+2825
+```
+
+

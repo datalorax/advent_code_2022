@@ -85,5 +85,104 @@ by_group |>
   summarize(total = sum(score))
 ```
 
+# Solution in python
+## Part 1
 
+```{python}
+import pandas as pd
+from functools import reduce
+from string import ascii_letters
+```
 
+```{python}
+d = pd.read_csv("data.txt", names = ['rucksack'])
+```
+
+```{python}
+def compartment_separate(str):
+  lngth = len(str)
+  lngth_half = int(lngth / 2)
+  return [str[0:lngth_half], str[lngth_half:lngth]]
+  
+compartments_data = [compartment_separate(rucksack) for rucksack in d['rucksack']]
+```
+
+```{python}
+def intersect(a, b):
+  return a.intersection(b)
+
+def str_intersect(str_vec):
+  sets = [set(list(x)) for x in str_vec]
+  return list(reduce(intersect, sets))
+
+common = [str_intersect(compartments) for compartments in compartments_data]
+```
+
+```{python}
+for i in range(0, len(compartments_data)):
+  compartments_data[i].extend(common[i])
+
+compartments = pd.DataFrame(
+  data = compartments_data,
+  columns = ['compartment1', 'compartment2', 'common']
+)
+```
+
+```{python}
+letters = ascii_letters
+
+score_table = pd.DataFrame(
+  data = {
+    'key': list(letters),
+    'score': list(range(1, 53))
+  }
+)
+```
+
+```{python}
+compartments = compartments.merge(
+  score_table,
+  left_on = "common",
+  right_on = "key",
+  how = "left"
+)
+```
+
+```{python}
+sum(compartments['score'])
+```
+
+## Part 2
+
+```{python}
+id_list = [[i, i, i] for i in range(1, 101)]
+
+# move the list of lists into a single list
+ids = [item for sublist in id_list for item in sublist]
+
+d['group'] = ids
+```
+
+```{python}
+by_group = dict(list(d.groupby('group')))
+badge_data = {key: str_intersect(value['rucksack']) for key, value in by_group.items()}
+badge_data_values = badge_data.values()
+badge_data_values_list = [item for sublist in badge_data_values for item in sublist]
+
+badge = pd.DataFrame(
+  data = {
+    "group": badge_data.keys(), 
+    "badge": badge_data_values_list
+  }
+)
+```
+
+```{python}
+scored = badge.merge(
+  score_table,
+  left_on = "badge",
+  right_on = "key",
+  how = "left"
+)
+sum(scored['score'])
+```
