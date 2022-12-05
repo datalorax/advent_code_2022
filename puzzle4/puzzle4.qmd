@@ -40,3 +40,34 @@ separated |>
   count(partially_contained)
 ```
 
+# Solution in python
+
+## Part 1
+
+```{python}
+import pandas as pd
+```
+
+```{python}
+d = pd.read_csv("data.txt", sep = ",", names = ['s1', 's2'])
+d[['s1_lower', 's1_upper']] = d['s1'].str.split('-', expand = True)
+d[['s2_lower', 's2_upper']] = d['s2'].str.split('-', expand = True)
+
+for column in [['s1_lower', 's1_upper', 's2_lower', 's2_upper']]:
+  d[column] = d[column].astype('int')  
+```
+
+```{python}
+c1 = ((d['s1_lower'] >= d['s2_lower']) & (d['s1_upper'] <= d['s2_upper']))
+c2 = ((d['s2_lower'] >= d['s1_lower']) & (d['s2_upper'] <= d['s1_upper']))
+
+(c1 | c2).sum()
+```
+
+## Part 2
+
+```{python}
+partially_contained = (d['s1_upper'] >= d['s2_lower']) & (d['s2_upper'] >= d['s1_lower'])
+
+partially_contained.sum()
+```

@@ -15,7 +15,7 @@ execute:
 ## Part 1
 
 
-::: {.cell}
+ 
 
 ```{.r .cell-code}
 library(tidyverse)
@@ -35,7 +35,7 @@ separated |>
   count(fully_contained)
 ```
 
-::: {.cell-output .cell-output-stdout}
+ 
 ```
 # A tibble: 2 × 2
   fully_contained     n
@@ -43,14 +43,14 @@ separated |>
 1 FALSE             525
 2 TRUE              475
 ```
-:::
-:::
+
+
 
 
 ## Part 2
 
 
-::: {.cell}
+ 
 
 ```{.r .cell-code}
 separated |>
@@ -60,7 +60,7 @@ separated |>
   count(partially_contained)
 ```
 
-::: {.cell-output .cell-output-stdout}
+ 
 ```
 # A tibble: 2 × 2
   partially_contained     n
@@ -68,5 +68,64 @@ separated |>
 1 FALSE                 175
 2 TRUE                  825
 ```
-:::
-:::
+
+
+
+
+# Solution in python
+
+## Part 1
+
+
+ 
+
+```{.python .cell-code}
+import pandas as pd
+```
+
+
+ 
+
+```{.python .cell-code}
+d = pd.read_csv("data.txt", sep = ",", names = ['s1', 's2'])
+d[['s1_lower', 's1_upper']] = d['s1'].str.split('-', expand = True)
+d[['s2_lower', 's2_upper']] = d['s2'].str.split('-', expand = True)
+
+for column in [['s1_lower', 's1_upper', 's2_lower', 's2_upper']]:
+  d[column] = d[column].astype('int')  
+```
+
+
+ 
+
+```{.python .cell-code}
+c1 = ((d['s1_lower'] >= d['s2_lower']) & (d['s1_upper'] <= d['s2_upper']))
+c2 = ((d['s2_lower'] >= d['s1_lower']) & (d['s2_upper'] <= d['s1_upper']))
+
+(c1 | c2).sum()
+```
+
+ 
+```
+475
+```
+
+
+
+
+## Part 2
+
+
+ 
+
+```{.python .cell-code}
+partially_contained = (d['s1_upper'] >= d['s2_lower']) & (d['s2_upper'] >= d['s1_lower'])
+
+partially_contained.sum()
+```
+
+ 
+```
+825
+```
+
